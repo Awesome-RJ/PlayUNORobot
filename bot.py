@@ -324,10 +324,10 @@ def select_game(bot, update):
 @game_locales
 def status_update(bot, update):
     """Remove player from game if user leaves the group"""
-    chat = update.message.chat
-
     if update.message.left_chat_member:
         user = update.message.left_chat_member
+
+        chat = update.message.chat
 
         try:
             gm.leave_game(user, chat)
@@ -440,14 +440,13 @@ def close_game(bot, update):
         game.open = False
         send_async(bot, chat.id, text=_("Closed the lobby. "
                                         "No more players can join this game."))
-        return
-
     else:
         send_async(bot, chat.id,
                    text=_("Only the game creator ({name}) and admin can do that.")
                    .format(name=game.starter.first_name),
                    reply_to_message_id=update.message.message_id)
-        return
+
+    return
 
 
 @user_locale
@@ -468,13 +467,13 @@ def open_game(bot, update):
         game.open = True
         send_async(bot, chat.id, text=_("Opened the lobby. "
                                         "New players may /join the game."))
-        return
     else:
         send_async(bot, chat.id,
                    text=_("Only the game creator ({name}) and admin can do that.")
                    .format(name=game.starter.first_name),
                    reply_to_message_id=update.message.message_id)
-        return
+
+    return
 
 
 @user_locale
@@ -495,14 +494,13 @@ def enable_translations(bot, update):
         game.translate = True
         send_async(bot, chat.id, text=_("Enabled multi-translations. "
                                         "Disable with /disable_translations"))
-        return
-
     else:
         send_async(bot, chat.id,
                    text=_("Only the game creator ({name}) and admin can do that.")
                    .format(name=game.starter.first_name),
                    reply_to_message_id=update.message.message_id)
-        return
+
+    return
 
 
 @user_locale
@@ -524,14 +522,13 @@ def disable_translations(bot, update):
         send_async(bot, chat.id, text=_("Disabled multi-translations. "
                                         "Enable them again with "
                                         "/enable_translations"))
-        return
-
     else:
         send_async(bot, chat.id,
                    text=_("Only the game creator ({name}) and admin can do that.")
                    .format(name=game.starter.first_name),
                    reply_to_message_id=update.message.message_id)
-        return
+
+    return
 
 
 @game_locales
@@ -575,7 +572,7 @@ def reply_to_query(bot, update):
     Handler for inline queries.
     Builds the result list for inline queries and answers to the client.
     """
-    results = list()
+    results = []
     switch = None
 
     try:
@@ -615,7 +612,7 @@ def reply_to_query(bot, update):
                     add_call_bluff(results, game)
 
                 playable = player.playable_cards()
-                added_ids = list()  # Duplicates are not allowed
+                added_ids = []
 
                 for card in sorted(player.cards):
                     add_card(game, card, results,
@@ -625,12 +622,9 @@ def reply_to_query(bot, update):
 
                 add_gameinfo(game, results)
 
-        elif user_id != game.current_player.user.id or not game.started:
+        else:
             for card in sorted(player.cards):
                 add_card(game, card, results, can_play=False)
-
-        else:
-            add_gameinfo(game, results)
 
         for result in results:
             result.id += ':%d' % player.anti_cheat
@@ -658,7 +652,7 @@ def process_result(bot, update, job_queue):
     except (KeyError, AttributeError):
         return
 
-    logger.debug("Selected result: " + result_id)
+    logger.debug(f"Selected result: {result_id}")
 
     result_id, anti_cheat = result_id.split(':')
     last_anti_cheat = player.anti_cheat
@@ -707,9 +701,9 @@ def process_result(bot, update, job_queue):
 
 def reset_waiting_time(bot, player):
     """Resets waiting time for a player and sends a notice to the group"""
-    chat = player.game.chat
-
     if player.waiting_time < WAITING_TIME:
+        chat = player.game.chat
+
         player.waiting_time = WAITING_TIME
         send_async(bot, chat.id,
                    text=__("Waiting time for {name} has been reset to {time} "

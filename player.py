@@ -35,7 +35,7 @@ class Player(object):
     """
 
     def __init__(self, game, user):
-        self.cards = list()
+        self.cards = []
         self.game = game
         self.user = user
         self.logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class Player(object):
         for card in self.cards:
             self.game.deck.dismiss(card)
 
-        self.cards = list()
+        self.cards = []
 
     def __repr__(self):
         return repr(self.user)
@@ -90,7 +90,7 @@ class Player(object):
 
     @property
     def next(self):
-        return self._next if not self.game.reversed else self._prev
+        return self._prev if self.game.reversed else self._next
 
     @next.setter
     def next(self, player):
@@ -101,7 +101,7 @@ class Player(object):
 
     @property
     def prev(self):
-        return self._prev if not self.game.reversed else self._next
+        return self._next if self.game.reversed else self._prev
 
     @prev.setter
     def prev(self, player):
@@ -133,15 +133,12 @@ class Player(object):
     def playable_cards(self):
         """Returns a list of the cards this player can play right now"""
 
-        playable = list()
+        playable = []
         last = self.game.last_card
 
-        self.logger.debug("Last card was " + str(last))
+        self.logger.debug(f"Last card was {str(last)}")
 
-        cards = self.cards
-        if self.drew:
-            cards = self.cards[-1:]
-
+        cards = self.cards[-1:] if self.drew else self.cards
         # You may only play a +4 if you have no cards of the correct color
         self.bluffing = False
         for card in cards:
@@ -162,7 +159,7 @@ class Player(object):
 
         is_playable = True
         last = self.game.last_card
-        self.logger.debug("Checking card " + str(card))
+        self.logger.debug(f"Checking card {str(card)}")
 
         if (card.color != last.color and card.value != last.value and
                 not card.special):
@@ -175,8 +172,10 @@ class Player(object):
         elif last.special == c.DRAW_FOUR and self.game.draw_counter:
             self.logger.debug("Player has to draw and can't counter")
             is_playable = False
-        elif (last.special == c.CHOOSE or last.special == c.DRAW_FOUR) and \
-                (card.special == c.CHOOSE or card.special == c.DRAW_FOUR):
+        elif last.special in [c.CHOOSE, c.DRAW_FOUR] and card.special in [
+            c.CHOOSE,
+            c.DRAW_FOUR,
+        ]:
             self.logger.debug("Can't play colorchooser on another one")
             is_playable = False
         elif not last.color:

@@ -45,7 +45,7 @@ def display_name(user):
     """ Get the current players name including their username, if possible """
     user_name = user.first_name
     if user.username:
-        user_name += ' (@' + user.username + ')'
+        user_name += f' (@{user.username})'
     return user_name
 
 

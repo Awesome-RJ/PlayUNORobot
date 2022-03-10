@@ -35,9 +35,7 @@ def do_skip(bot, player, job_queue=None):
     if skipped_player.waiting_time > 0:
         skipped_player.anti_cheat += 1
         skipped_player.waiting_time -= TIME_REMOVAL_AFTER_SKIP
-        if (skipped_player.waiting_time < 0):
-            skipped_player.waiting_time = 0
-
+        skipped_player.waiting_time = max(skipped_player.waiting_time, 0)
         try:
             skipped_player.draw()
         except DeckEmptyError:

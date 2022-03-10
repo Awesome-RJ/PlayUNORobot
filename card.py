@@ -188,10 +188,7 @@ class Card(object):
         self.special = special
 
     def __str__(self):
-        if self.special:
-            return self.special
-        else:
-            return '%s_%s' % (self.color, self.value)
+        return self.special or '%s_%s' % (self.color, self.value)
 
     def __repr__(self):
         if self.special:
@@ -213,8 +210,7 @@ class Card(object):
 
 def from_str(string):
     """Decodes a Card object from a string"""
-    if string not in SPECIALS:
-        color, value = string.split('_')
-        return Card(color, value)
-    else:
+    if string in SPECIALS:
         return Card(None, None, string)
+    color, value = string.split('_')
+    return Card(color, value)

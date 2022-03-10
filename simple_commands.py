@@ -116,15 +116,10 @@ def stats(bot, update):
                    text=_("You did not enable statistics. Use /settings in "
                           "a private chat with the bot to enable them."))
     else:
-        stats_text = list()
-
         n = us.games_played
-        stats_text.append(
-            _("{number} game played",
+        stats_text = [_("{number} game played",
               "{number} games played",
-              n).format(number=n)
-        )
-
+              n).format(number=n)]
         n = us.first_places
         stats_text.append(
             _("{number} first place",

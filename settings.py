@@ -43,10 +43,11 @@ def show_settings(bot, update):
     if not us:
         us = UserSetting(id=update.message.from_user.id)
 
-    if not us.stats:
-        stats = '📊' + ' ' + _("Enable statistics")
-    else:
-        stats = '❌' + ' ' + _("Delete all statistics")
+    stats = (
+        '❌' + ' ' + _("Delete all statistics")
+        if us.stats
+        else '📊' + ' ' + _("Enable statistics")
+    )
 
     kb = [[stats], ['🌍' + ' ' + _("Language")]]
     send_async(bot, chat.id, text='🔧' + ' ' + _("Settings"),
@@ -66,9 +67,8 @@ def kb_select(bot, update, groups):
         send_async(bot, chat.id, text=_("Enabled statistics!"))
 
     elif option == '🌍':
-        kb = [[locale + ' - ' + descr]
-              for locale, descr
-              in sorted(available_locales.items())]
+        kb = [[f'{locale} - {descr}'] for locale, descr
+                      in sorted(available_locales.items())]
         send_async(bot, chat.id, text=_("Select locale"),
                    reply_markup=ReplyKeyboardMarkup(keyboard=kb,
                                                     one_time_keyboard=True))

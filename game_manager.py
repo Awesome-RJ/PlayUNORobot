@@ -30,10 +30,10 @@ class GameManager(object):
     """ Manages all running games by using a confusing amount of dicts """
 
     def __init__(self):
-        self.chatid_games = dict()
-        self.userid_players = dict()
-        self.userid_current = dict()
-        self.remind_dict = dict()
+        self.chatid_games = {}
+        self.userid_players = {}
+        self.userid_current = {}
+        self.remind_dict = {}
 
         self.logger = logging.getLogger(__name__)
 
@@ -43,11 +43,11 @@ class GameManager(object):
         """
         chat_id = chat.id
 
-        self.logger.debug("Creating new game in chat " + str(chat_id))
+        self.logger.debug(f"Creating new game in chat {str(chat_id)}")
         game = Game(chat)
 
         if chat_id not in self.chatid_games:
-            self.chatid_games[chat_id] = list()
+            self.chatid_games[chat_id] = []
 
         # remove old games
         for g in list(self.chatid_games[chat_id]):
@@ -59,7 +59,7 @@ class GameManager(object):
 
     def join_game(self, user, chat):
         """ Create a player from the Telegram user and add it to the game """
-        self.logger.info("Joining game with id " + str(chat.id))
+        self.logger.info(f"Joining game with id {str(chat.id)}")
 
         try:
             game = self.chatid_games[chat.id][-1]
@@ -70,7 +70,7 @@ class GameManager(object):
             raise LobbyClosedError()
 
         if user.id not in self.userid_players:
-            self.userid_players[user.id] = list()
+            self.userid_players[user.id] = []
 
         players = self.userid_players[user.id]
 
@@ -88,7 +88,7 @@ class GameManager(object):
             self.end_game(chat, user)
 
             if user.id not in self.userid_players:
-                self.userid_players[user.id] = list()
+                self.userid_players[user.id] = []
 
             players = self.userid_players[user.id]
 
@@ -142,7 +142,7 @@ class GameManager(object):
         End a game
         """
 
-        self.logger.info("Game in chat " + str(chat.id) + " ended")
+        self.logger.info(f"Game in chat {str(chat.id)} ended")
 
         # Find the correct game instance to end
         player = self.player_for_user_in_chat(user, chat)
@@ -184,7 +184,6 @@ class GameManager(object):
 
     def player_for_user_in_chat(self, user, chat):
         players = self.userid_players.get(user.id, list())
-        for player in players:
-            if player.game.chat.id == chat.id:
-                return player
-        return None
+        return next(
+            (player for player in players if player.game.chat.id == chat.id), None
+        )
